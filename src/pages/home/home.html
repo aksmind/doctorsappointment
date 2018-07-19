@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>
+      Doctor's Appointment
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+    
+  <form [formGroup]="patient" (ngSubmit)="onSubmit()" novalidate>
+    <ion-item>
+      <ion-label>First Name:</ion-label>
+      <ion-input type="text" formControlName = "first"></ion-input>
+    </ion-item>
+    <span *ngIf = "patient.controls.first.touched && patient.controls.first.errors">First name is not valid</span>
+    <ion-item>
+      <ion-label>Last Name:</ion-label>
+      <ion-input type="text" name="last" formControlName="last"></ion-input>
+    </ion-item>
+    <ion-row>
+      <ion-col text-center><ion-label>Age</ion-label></ion-col>
+      <ion-col><ion-toggle (ionChange)="updateDOB($event)"></ion-toggle></ion-col>
+      <ion-col><ion-label>DOB</ion-label></ion-col>
+    </ion-row>
+    <ion-item *ngIf="age">
+      <ion-label>Enter your Age</ion-label>
+      <ion-input type="tel" formControlName="date"></ion-input>
+    </ion-item>
+    <span *ngIf = "patient.controls.date.touched && patient.controls.date.errors">Age not valid, should be 18 or more</span>
+    <ion-item *ngIf="dob">
+      <ion-label>Select the date of birth</ion-label>
+      <ion-datetime displayFormat="DD/MM/YYYY" formControlName="date" max="2000" #date (ionChange)="getAge(date.value,$event)"></ion-datetime>
+    </ion-item>
+    <ion-item>
+      <ion-label>Email:</ion-label>
+      <ion-input type="email" formControlName="email"></ion-input>
+    </ion-item>
+    <span *ngIf = "patient.controls.email.touched && patient.controls.email.errors">A valid email is required</span>
+    <ion-item>
+      <ion-label>Password:</ion-label>
+      <ion-input type="password" class="password-input" formControlName="password" [type]="passwordType" clearOnEdit="false"></ion-input>
+      <ion-icon item-end [name]="passwordIcon" class = "passwordIcon" (click) = "showHide()"></ion-icon>
+    </ion-item>
+    <span *ngIf = "patient.controls.password.touched && patient.controls.password.errors">A valid password of length greater than 6 is required</span>
+    <ion-item>
+      <ion-label>Confirm Password:</ion-label>
+      <ion-input type="password"  formControlName="confirm"></ion-input>
+    </ion-item>
+    <span *ngIf = "patient.controls.confirm.touched && patient.controls.confirm.errors">Password does not match</span>
+    <ion-row><ion-label text-center>Enter the Phone Number:</ion-label></ion-row>
+    <ion-row>
+      <!-- <ion-col>
+          <ion-label text-center>Phone:</ion-label>
+      </ion-col> -->
+      <ion-col col-8>
+          <ion-select formControlName = "code">
+              <ion-option *ngFor = "let nation of country" value = "{{nation.callingCodes}}">({{nation.callingCodes}}) {{nation.name}}</ion-option>
+            </ion-select>
+      </ion-col>
+      <ion-col col-4>
+          <ion-input type="tel" formControlName="phone"></ion-input>
+      </ion-col>
+    </ion-row>
+    <span *ngIf = "patient.controls.phone.touched && patient.controls.phone.errors">A valid phone number is required</span>
+    <ion-list radio-group  formControlName="registration">
+      <ion-list-header (click)="dropreg()">Registration For</ion-list-header>
+      <ion-grid *ngIf = "drop">
+        <ion-item>
+          <ion-label>Self</ion-label>
+          <ion-radio value = "self" checked></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Mother</ion-label>
+          <ion-radio value = "mother"></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Father</ion-label>
+          <ion-radio value = "father"></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Wife</ion-label>
+          <ion-radio value = "wife"></ion-radio>
+        </ion-item><ion-item>
+          <ion-label>Grand Parent</ion-label>
+          <ion-radio value = "grandparent"></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Child</ion-label>
+          <ion-radio value = "child"></ion-radio>
+        </ion-item>
+        <ion-item>
+          <ion-label>Other</ion-label>
+          <ion-radio value = "other"></ion-radio>
+        </ion-item>
+      </ion-grid>
+    </ion-list>
+    <ion-list>
+      <ion-list-header (click)="dropsymp()">Select the Symptoms <i class="ion-arrow-down-a"></i> </ion-list-header>
+      <ion-grid *ngIf="drop1">
+        <ion-item *ngFor="let symp of symptomsArr">
+          <ion-label>{{symp.symptom}}</ion-label>
+          <ion-checkbox (ionChange) = "getChange(symp.symptom, $event)"></ion-checkbox>
+        </ion-item>
+      </ion-grid>
+    </ion-list>
+    <button ion-button type = "submit" [disabled]="!patient.valid" block>Submit</button>
+  </form>
+</ion-content>

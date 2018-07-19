@@ -1,0 +1,14 @@
+page-home {
+    ion-input.ng-invalid{
+        color:red;
+    }
+    .passwordIcon{
+        font-size:2rem !important;
+        position: relative !important;
+        top: 5px !important;
+        margin: 0 auto !important;
+     }
+     .password-input{
+         padding-right: 5px;
+     }
+}
