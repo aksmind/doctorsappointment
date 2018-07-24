@@ -1,23 +1,22 @@
-import { Component } from '@angular/core';
-import { NavController, AlertController, NavParams } from 'ionic-angular';
-import { Validators, FormBuilder, FormGroup, EmailValidator, FormArray, FormControl } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { NavController, AlertController, NavParams, ToastController } from 'ionic-angular';
+import { Validators, FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { AppointmentProvider } from '../../providers/appointment/appointment';
 import { Country, PatientData } from '../../providers/patient';
 import { DisplayPage } from '../display/display';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'page-home',
   templateUrl: 'home.html'
 })
-export class HomePage {
+export class HomePage{
 
   patientData: PatientData;
   displayPage : any;
   private patient : FormGroup;
   passwordType: string = 'password';
   passwordIcon: string = 'eye-off';
-  passwordType1: string = 'password';
-  passwordIcon1: string = 'eye-off';
   country: Country;
   age: boolean = true;
   dob: boolean = false;
@@ -31,14 +30,11 @@ export class HomePage {
   ];
   checkItems = {};
   birthDate: Date;
-  drop: boolean = false;
-  drop1: boolean = false;
-  searchQuery: string = '';
-  items: string[];
-  show: boolean = false;
+  private url = "../../assets/imgs/country.json";
+  min: string;
+  ageOfPatient: number = 18;
 
-  constructor(public navParams: NavParams,private alertCtrl: AlertController,public navCtrl: NavController, private formBuilder: FormBuilder, private service: AppointmentProvider) {
-    this.initializeItems();
+  constructor(public navParams: NavParams,private http: HttpClient,private toast: ToastController,private alertCtrl: AlertController,public navCtrl: NavController, private formBuilder: FormBuilder, private service: AppointmentProvider) {
     this.displayPage = DisplayPage;
     this.patient = this.formBuilder.group({
       first: ['', Validators.compose([
@@ -54,15 +50,13 @@ export class HomePage {
         Validators.required,
         Validators.pattern('^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9.]+$')
       ])],
-      // email: ['', Validators.required],
       password: ['', Validators.compose([
         Validators.required,
-        // Validators.pattern('^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,15}$')
         Validators.minLength(6),
         Validators.maxLength(36)
       ])],
       confirm: ['', Validators.required],
-      code: ['', Validators.required],
+      code: [''],
       phone: ['', Validators.compose([
         Validators.required,
         Validators.pattern('[0-9]{10}')
@@ -74,58 +68,30 @@ export class HomePage {
     );
   }
 
-  ionViewDidLoad(){
-    console.log("Home Page loaded");
+  ionViewCanEnter(){
     this.service.getData()
     .subscribe(
       (success: Country) => {
         this.country = success;
-        console.log(success);
       },
-      err => console.log(err)
+      err => {
+        this.toast.create({
+          message: JSON.parse(err)
+        }).present()
+      }
     )
   }
 
-  initializeItems(){
-    this.items = [
-      'Amsterdam',
-      'Bogota',
-      'Croatia',
-      'England',
-      'India',
-      'Indonesia',
-      'Indiana'
-    ];
+  ionViewDidLoad(){
+    var current = new Date();
+    this.min = (current.getFullYear()-18) + '-'  + ('0' + (current.getMonth()+1)).slice(-2) + '-' + ('0' + current.getDate()).slice(-2);
   }
 
-  getItems(ev: any){
-    if(this.show){
-      this.show = false;
-    }
-    else{
-      this.show = true;
-    }
-    this.initializeItems();
-    const val = ev.target.value;
-    if(val && val.trim() != ''){
-      this.items = this.items.filter((item) => {
-        return (item.toLowerCase().indexOf(val.toLowerCase()) > -1);
-      })
-    } 
-  }
-
-  getChange(symptom: string,event){
-    console.log(event._value);
-    console.log(symptom);
-    var isChecked = event._value;
+  getChange(event){
     const arr = <FormArray>this.patient.controls.symptoms;
-    if(isChecked){
-      arr.push(new FormControl(symptom));
-    }
-    else{
-      let index = arr.controls.findIndex(x => x.value == symptom)
-      arr.removeAt(index);
-    }
+    event.forEach(element => {
+      arr.push(new FormControl(element));
+    });
   }
 
   matchingPasswords(passwordKey: string, confirmKey: string){
@@ -142,7 +108,6 @@ export class HomePage {
   }
 
   onSubmit(){
-    console.log(this.patient.value);
     this.getAlert();
     this.navCtrl.push(DisplayPage, {
       data: this.patient.value
@@ -167,22 +132,8 @@ export class HomePage {
     this.passwordIcon = this.passwordIcon === 'eye-off' ? 'eye' : 'eye-off';
   }
 
-  // updateAge(event){
-  //   this.ageEvent = event;
-  //   console.log(this.ageEvent._value);
-  //   if(this.age){
-  //     this.age = false;
-  //   }
-  //   else{
-  //     this.age = true;
-  //     this.dob = false;
-  //     this.dobEvent._value = false;
-  //   }
-  // }
-
   updateDOB(event){
     this.dobEvent = event;
-    console.log(this.dobEvent);
     if(this.dob){
       this.dob = false;
       this.age = true;
@@ -193,39 +144,14 @@ export class HomePage {
     }
   }
 
-  getAge(date,event){
-    this.birthDate = event;
-    // var today = new Date().toISOString();
-    // var year = new Date().getFullYear() - this.birthDate.year;
-    // if(year<18){
-    //   alert("The age should be greater than 18, modify the date please");
-    // }
-    // var month = new Date().getMonth() - this.birthDate.month;
-    // var day = new Date().getDate() - this.birthDate.day;
-    // console.log(this.birthDate);
-    // console.log("year",year);
-    // console.log("month",month);
-    // console.log("Day",day);
-  }
-
-  dropreg(){
-    //this.drop = true;
-    if(this.drop){
-      this.drop = false;
-    }
-    else{
-      this.drop = true;
-    }
-  }
-
-  dropsymp(){
-    //this.drop1 = true;
-    if(this.drop1){
-      this.drop1 = false;
-    }
-    else{
-      this.drop1 = true;
-    }
+  getDate(event){
+    console.log(event);
+    var day = event.day;
+    var month = event.month;
+    var year = event.year;
+    var current = new Date();
+    this.ageOfPatient = current.getFullYear() - event.year;
+    // this.min = day + '/' + month + '/' + year;
   }
 
 }

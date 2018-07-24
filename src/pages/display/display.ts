@@ -12,17 +12,14 @@ export class DisplayPage {
   patientData: PatientData;
   constructor(public navCtrl: NavController, public navParams: NavParams) {
     this.patientData = navParams.get('data');
-    console.log("Passedddddddddddddddddd",this.patientData);
   }
 
   ionViewDidLoad() {
-    console.log('ionViewDidLoad DisplayPage');
-    console.log(this.patientData);
+    
   }
 
   getData(){
-    console.log("Getting data");
-    console.log(this.patientData);
+    
   }
 
 }

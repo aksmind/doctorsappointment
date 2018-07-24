@@ -4,9 +4,9 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class AppointmentProvider {
 
-  private url = "../../assets/json/country.json";
+  private url = "../../assets/imgs/country.json";
   constructor(public http: HttpClient) {
-    console.log('Hello AppointmentProvider Provider');
+
   }
 
   public getData(){

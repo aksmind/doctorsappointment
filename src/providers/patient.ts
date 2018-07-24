@@ -17,10 +17,17 @@ export interface Patient{
 
 export interface Country {
     name: string,
-    nativeName: string,
-    callingCodes: number,
+    dial_code: number,
+    code: string,
     flag: string
 }
+
+// export interface Country {
+//     name: string,
+//     nativeName: string,
+//     callingCodes: number,
+//     flag: string
+// }
 
 export interface PatientData {
     first: string,
