@@ -10,6 +10,21 @@ import { AppointmentProvider } from '../providers/appointment/appointment';
 import { HttpClientModule } from '@angular/common/http';
 import { DisplayPage } from '../pages/display/display';
 
+import { AngularFireModule } from 'angularfire2';
+import { AngularFireDatabaseModule } from 'angularfire2/database';
+import { IonicStorageModule } from '@ionic/storage';
+import { Network } from '@ionic-native/network'; 
+import { BackgroundMode } from '@ionic-native/background-mode';
+
+export const firebaseconfig = {
+  apiKey: "AIzaSyBKTox01byAmWS4e43HVrCBwyL0VL7iz0o",
+  authDomain: "todolistapp-60e49.firebaseapp.com",
+  databaseURL: "https://todolistapp-60e49.firebaseio.com",
+  projectId: "todolistapp-60e49",
+  storageBucket: "todolistapp-60e49.appspot.com",
+  messagingSenderId: "1007299436143"
+}
+
 @NgModule({
   declarations: [
     MyApp,
@@ -19,7 +34,10 @@ import { DisplayPage } from '../pages/display/display';
   imports: [
     BrowserModule,
     HttpClientModule,
-    IonicModule.forRoot(MyApp)
+    IonicModule.forRoot(MyApp),
+    IonicStorageModule.forRoot(),
+    AngularFireModule.initializeApp(firebaseconfig),
+    AngularFireDatabaseModule
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -31,7 +49,10 @@ import { DisplayPage } from '../pages/display/display';
     StatusBar,
     SplashScreen,
     {provide: ErrorHandler, useClass: IonicErrorHandler},
-    AppointmentProvider
+    AppointmentProvider,
+    Storage,
+    Network,
+    BackgroundMode
   ]
 })
 export class AppModule {}

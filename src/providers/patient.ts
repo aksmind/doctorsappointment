@@ -22,21 +22,15 @@ export interface Country {
     flag: string
 }
 
-// export interface Country {
-//     name: string,
-//     nativeName: string,
-//     callingCodes: number,
-//     flag: string
-// }
-
 export interface PatientData {
+    $key: string,
     first: string,
     last: string,
     date: number,
     email: string,
     password: string,
     confirm: string,
-    code: number,
+    // code: number,
     phone: number,
     registration: string,
     symptoms: string

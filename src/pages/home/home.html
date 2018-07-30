@@ -7,8 +7,8 @@
 </ion-header>
 
 <ion-content padding>
-    
-  <form [formGroup]="patient" (ngSubmit)="onSubmit()" novalidate>
+  <!-- <button ion-button color = "secondary" (click)="getDisplay()">Forms Submitted</button> -->
+  <form [formGroup]="patient" (ngSubmit)="onSubmit(patient)" novalidate>
     <ion-item>
       <ion-label>First Name:</ion-label>
       <ion-input type="text" formControlName = "first"></ion-input>
@@ -48,6 +48,7 @@
       <ion-input type="password"  formControlName="confirm" validateEqual="password"></ion-input>
     </ion-item>
     <span *ngIf = "patient.controls.confirm.touched && patient.controls.confirm.errors && validateEqual">Password does not match</span>
+    <span class = "confirmError" *ngIf = "patient.controls.confirm.touched && wrong">Password mismatch</span>
     <ion-item>
         <ion-label text-center>Enter the Phone Number:</ion-label>
         <ion-input type="tel" formControlName="phone"></ion-input>

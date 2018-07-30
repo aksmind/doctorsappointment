@@ -14,4 +14,8 @@ page-home {
      ion-input.validateEqual{
         color:red;
     }
+    .confirmError{
+        color: #cc0033;
+        border-bottom-color : 1px solid #cc0033;
+    }
 }

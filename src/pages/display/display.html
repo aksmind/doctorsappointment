@@ -1,27 +1,41 @@
-<!--
-  Generated template for the DisplayPage page.
 
-  See http://ionicframework.com/docs/components/#navigation for more info on
-  Ionic pages and navigation.
--->
 <ion-header>
 
   <ion-navbar>
-    <ion-title>display</ion-title>
+    <ion-title>Submitted Forms</ion-title>
   </ion-navbar>
 
 </ion-header>
 
 
 <ion-content padding>
+
+  <h1>Current Form Submitted</h1>
+  <br>
   <ion-item>
     <p>First Name: {{patientData.first}}</p>
     <p>Last Name: {{patientData.last}}</p>
     <p>Age: {{patientData.date}}</p>
     <p>Email: {{patientData.email}}</p>
-    <!-- <p>Country Code: {{patientData.code}}</p> -->
     <p>Phone Number: {{patientData.phone}}</p>
     <p>Appointment for: {{patientData.registration}}</p>
     <p>Symptoms: {{patientData.symptoms}}</p>
   </ion-item>
+  <br>
+
+  <h1>Previous Forms Submitted</h1>
+
+  <ion-item *ngFor = "let patient of patients">
+    <p>{{patient.first}}</p>
+    <p>{{patient.last}}</p>
+    <p>First Name: {{patient.first}}</p>
+    <p>Last Name: {{patient.last}}</p>
+    <p>Age: {{patient.date}}</p>
+    <p>Email: {{patient.email}}</p>
+    <p>Phone Number: {{patient.phone}}</p>
+    <p>Appointment for: {{patient.registration}}</p>
+    <p>Symptoms: {{patient.symptoms}}</p>
+  </ion-item>
+
+
 </ion-content>

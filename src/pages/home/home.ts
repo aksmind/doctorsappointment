@@ -1,10 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, AlertController, NavParams, ToastController } from 'ionic-angular';
+import { NavController, AlertController, NavParams, ToastController, Loading, Platform } from 'ionic-angular';
 import { Validators, FormBuilder, FormGroup, FormArray, FormControl } from '@angular/forms';
 import { AppointmentProvider } from '../../providers/appointment/appointment';
 import { Country, PatientData } from '../../providers/patient';
 import { DisplayPage } from '../display/display';
 import { HttpClient } from '@angular/common/http';
+import { AngularFireDatabase, AngularFireList } from 'angularfire2/database';
+import { Storage } from '@ionic/storage';
+import { Network } from '@ionic-native/network';
+import { BackgroundMode } from '@ionic-native/background-mode';
 
 @Component({
   selector: 'page-home',
@@ -30,11 +34,53 @@ export class HomePage{
   ];
   checkItems = {};
   birthDate: Date;
-  private url = "../../assets/imgs/country.json";
+  // private url = "../../assets/imgs/country.json";
   min: string;
   ageOfPatient: number = 18;
+  wrong:boolean = false;
+  offlinePatient: any;
+  online: boolean = false;
+  offline: boolean = false;
+  type;
 
-  constructor(public navParams: NavParams,private http: HttpClient,private toast: ToastController,private alertCtrl: AlertController,public navCtrl: NavController, private formBuilder: FormBuilder, private service: AppointmentProvider) {
+  constructor(private platform: Platform, private network: Network, public backgroundMode: BackgroundMode, public navParams: NavParams, private storage: Storage, private http: HttpClient,private toast: ToastController,private alertCtrl: AlertController,public navCtrl: NavController, private formBuilder: FormBuilder, private service: AppointmentProvider) {
+   
+    this.platform.ready().then(() => {
+      //this.type = this.network.type;
+      let disconnectSub = this.network.onDisconnect().subscribe(() => {
+        console.log('you are offline');
+        this.offline = true;
+        this.online = false;
+      });
+      
+      let connectSub = this.network.onConnect().subscribe(()=> {
+        console.log('you are online');
+        this.online = true;
+        this.offline = false;
+        this.storage.get('patient').then((val) => {
+          this.offlinePatient = JSON.parse(val);
+          //this.service.insertPatient(this.offlinePatient);
+        })
+        setTimeout(() => {
+          console.log("Offline patient: " + this.offlinePatient);
+          if(this.offlinePatient !== null){
+            this.service.insertPatient(this.offlinePatient);
+            this.offlinePatient = null;
+            // // this.storage.set('patient','');
+            this.storage.remove('patient');
+            this.getOfflineSubmitAlert();
+          }
+          // if(this.offlinePatient == 'null'){
+          //   console.log("No data saved in offline");
+          // }
+          // else{
+            
+          // }  
+        },3000)
+        
+      });
+    })
+    
     this.displayPage = DisplayPage;
     this.patient = this.formBuilder.group({
       first: ['', Validators.compose([
@@ -56,12 +102,13 @@ export class HomePage{
         Validators.maxLength(36)
       ])],
       confirm: ['', Validators.required],
-      code: [''],
+      // code: [''],
       phone: ['', Validators.compose([
         Validators.required,
         Validators.pattern('[0-9]{10}')
       ])],
       registration: ['', Validators.required],
+      // symptoms: [new FormArray([]), Validators.required]
       symptoms: new FormArray([])
     },
     {validator: this.matchingPasswords('password','confirm')}
@@ -69,20 +116,44 @@ export class HomePage{
   }
 
   ionViewCanEnter(){
-    this.service.getData()
-    .subscribe(
-      (success: Country) => {
-        this.country = success;
-      },
-      err => {
-        this.toast.create({
-          message: JSON.parse(err)
-        }).present()
-      }
-    )
+    // this.service.getCode()
+    // .subscribe(
+    //   (success: Country) => {
+    //     this.country = success;
+    //   },
+    //   err => {
+    //     this.toast.create({
+    //       message: JSON.parse(err)
+    //     }).present()
+    //   }
+    // )
   }
 
   ionViewDidLoad(){
+    this.storage.get('patient').then((val) => {
+      let pat = JSON.parse(val);
+      if(pat !== null){
+        this.service.insertPatient(pat);
+        this.storage.remove('patient');
+        this.getOfflineSubmitAlert();
+      }
+    })
+    // this.service.getCode()
+    // .subscribe(
+    //   (success: Country) => {
+    //     this.country = success;
+    //   },
+    //   err => {
+    //     this.toast.create({
+    //       message: JSON.parse(err)
+    //     }).present()
+    //   }
+    // )
+    // this.storage.get('patient').then((val) => {
+    //   this.offlinePatient = JSON.stringify(val);
+    //   console.log('storage data ' + this.offlinePatient);
+    // })
+
     var current = new Date();
     this.min = (current.getFullYear()-18) + '-'  + ('0' + (current.getMonth()+1)).slice(-2) + '-' + ('0' + current.getDate()).slice(-2);
   }
@@ -100,19 +171,83 @@ export class HomePage{
       let confirmpassword = group.controls[confirmKey];
 
       if(password.value !== confirmpassword.value){
+        this.wrong = true;
         return {
           mismatchPasswords: true
         };
       }
+      else{
+        this.wrong = false;
+      }
     }
   }
 
-  onSubmit(){
+  onSubmit(patient){
+    console.log(patient.value);
+    this.backgroundMode.enable();
+    this.backgroundMode.on("activate").subscribe(() => {
+      this.service.insertPatient(patient.value);
+      // this.getOfflineAlert();
+    });
+    this.service.insertPatient(patient.value);
     this.getAlert();
     this.navCtrl.push(DisplayPage, {
       data: this.patient.value
     });
+    this.resetForm(patient);
+    
+    // if(this.offline == true && this.online == false){
+    //   console.log("The device is not online");
+    //   this.storage.set('patient',JSON.stringify(patient.value));
+    //   // this.storage.get('patient').then((val) => {
+    //   //   this.offlinePatient = JSON.stringify(val);
+    //   //   console.log('storage data ' + this.offlinePatient);
+    //   // })
+    //   this.getOfflineAlert();
+    // }
+    // else if(this.online == true && this.offline == false){
+    //   console.log("The device is online");
+    //   this.service.insertPatient(patient.value);
+    //   this.getAlert();
+    //   // this.navCtrl.push(DisplayPage, {
+    //   //   data: this.patient.value
+    //   // });
+    // }
+    // else if(this.online == false && this.offline == false){
+    //   console.log("The device is online");
+    //   this.service.insertPatient(patient.value);
+    //   this.getAlert();
+    //   // this.navCtrl.push(DisplayPage, {
+    //   //   data: this.patient.value
+    //   // });
+    // }
+
+    // else{
+    //   console.log("The device is online");
+    //   this.service.insertPatient(patient.value);
+    //   this.getAlert();
+    // }
+    // this.service.insertPatient(patient.value);
+    // this.storage.set('patient',patient.value);
+    // this.storage.get('patient').then((val) => {
+    //   this.offlinePatient = JSON.stringify(val);
+    //   console.log('storage data ' + this.offlinePatient);
+    // })
+    // this.storage.set('patient','');
+    // this.storage.get('patient').then((val) => {
+    //   this.offlinePatient = JSON.stringify(val);
+    //   console.log('storage data ' + this.offlinePatient);
+    // })
+    // this.getAlert();
+    // this.resetForm(patient);
   }
+
+  // onSubmit(){
+  //   this.getAlert();
+    // this.navCtrl.push(DisplayPage, {
+    //   data: this.patient.value
+    // });  
+  // }
 
   getAlert(){
     let alert = this.alertCtrl.create({
@@ -121,6 +256,31 @@ export class HomePage{
       buttons: ['Dismiss']
     });
     alert.present();
+  }
+
+  getOfflineSubmitAlert(){
+    let alert = this.alertCtrl.create({
+      title: "Successfully",
+      subTitle: "The offline form has been submitted successfully!",
+      buttons: ['Dismiss']
+    });
+    alert.present();
+  }
+
+  getOfflineAlert(){
+    let alert = this.alertCtrl.create({
+      title: "Successfully",
+      subTitle: "No internet connection. Form will be submitted once the network is available.",
+      buttons: ['Dismiss']
+    });
+    alert.present();
+  }
+
+  resetForm(patient){
+    if(patient != null){
+      patient.reset();
+      this.getChange(" ");
+    }
   }
 
   getDisplay(){
@@ -145,7 +305,7 @@ export class HomePage{
   }
 
   getDate(event){
-    console.log(event);
+    // console.log(event);
     var day = event.day;
     var month = event.month;
     var year = event.year;
