@@ -34,7 +34,6 @@ export class HomePage{
   ];
   checkItems = {};
   birthDate: Date;
-  // private url = "../../assets/imgs/country.json";
   min: string;
   ageOfPatient: number = 18;
   wrong:boolean = false;
@@ -46,7 +45,6 @@ export class HomePage{
   constructor(private platform: Platform, private network: Network, public backgroundMode: BackgroundMode, public navParams: NavParams, private storage: Storage, private http: HttpClient,private toast: ToastController,private alertCtrl: AlertController,public navCtrl: NavController, private formBuilder: FormBuilder, private service: AppointmentProvider) {
    
     this.platform.ready().then(() => {
-      //this.type = this.network.type;
       let disconnectSub = this.network.onDisconnect().subscribe(() => {
         console.log('you are offline');
         this.offline = true;
@@ -59,7 +57,6 @@ export class HomePage{
         this.offline = false;
         this.storage.get('patient').then((val) => {
           this.offlinePatient = JSON.parse(val);
-          //this.service.insertPatient(this.offlinePatient);
         })
         setTimeout(() => {
           console.log("Offline patient: " + this.offlinePatient);
@@ -70,12 +67,6 @@ export class HomePage{
             this.storage.remove('patient');
             this.getOfflineSubmitAlert();
           }
-          // if(this.offlinePatient == 'null'){
-          //   console.log("No data saved in offline");
-          // }
-          // else{
-            
-          // }  
         },3000)
         
       });
@@ -108,25 +99,10 @@ export class HomePage{
         Validators.pattern('[0-9]{10}')
       ])],
       registration: ['', Validators.required],
-      // symptoms: [new FormArray([]), Validators.required]
       symptoms: new FormArray([])
     },
     {validator: this.matchingPasswords('password','confirm')}
     );
-  }
-
-  ionViewCanEnter(){
-    // this.service.getCode()
-    // .subscribe(
-    //   (success: Country) => {
-    //     this.country = success;
-    //   },
-    //   err => {
-    //     this.toast.create({
-    //       message: JSON.parse(err)
-    //     }).present()
-    //   }
-    // )
   }
 
   ionViewDidLoad(){
@@ -221,25 +197,6 @@ export class HomePage{
     //   //   data: this.patient.value
     //   // });
     // }
-
-    // else{
-    //   console.log("The device is online");
-    //   this.service.insertPatient(patient.value);
-    //   this.getAlert();
-    // }
-    // this.service.insertPatient(patient.value);
-    // this.storage.set('patient',patient.value);
-    // this.storage.get('patient').then((val) => {
-    //   this.offlinePatient = JSON.stringify(val);
-    //   console.log('storage data ' + this.offlinePatient);
-    // })
-    // this.storage.set('patient','');
-    // this.storage.get('patient').then((val) => {
-    //   this.offlinePatient = JSON.stringify(val);
-    //   console.log('storage data ' + this.offlinePatient);
-    // })
-    // this.getAlert();
-    // this.resetForm(patient);
   }
 
   // onSubmit(){
@@ -305,13 +262,11 @@ export class HomePage{
   }
 
   getDate(event){
-    // console.log(event);
     var day = event.day;
     var month = event.month;
     var year = event.year;
     var current = new Date();
     this.ageOfPatient = current.getFullYear() - event.year;
-    // this.min = day + '/' + month + '/' + year;
   }
 
 }
