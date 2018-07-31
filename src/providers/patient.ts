@@ -33,5 +33,6 @@ export interface PatientData {
     // code: number,
     phone: number,
     registration: string,
-    symptoms: string
+    symptoms: string,
+    symptomsArr: any
 }

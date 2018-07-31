@@ -236,7 +236,6 @@ export class HomePage{
   resetForm(patient){
     if(patient != null){
       patient.reset();
-      this.getChange(" ");
     }
   }
 
@@ -267,6 +266,7 @@ export class HomePage{
     var year = event.year;
     var current = new Date();
     this.ageOfPatient = current.getFullYear() - event.year;
+    this.min = day + "/" + month + "/" + year;
   }
 
 }

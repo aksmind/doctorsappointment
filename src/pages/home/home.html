@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-navbar>
+  <ion-navbar hideBackButton = "true">
     <ion-title>
       Doctor's Appointment
     </ion-title>
@@ -7,7 +7,7 @@
 </ion-header>
 
 <ion-content padding>
-  <!-- <button ion-button color = "secondary" (click)="getDisplay()">Forms Submitted</button> -->
+  <button ion-button color = "secondary" (click)="getDisplay()">Forms Submitted</button>
   <form [formGroup]="patient" (ngSubmit)="onSubmit(patient)" novalidate>
     <ion-item>
       <ion-label>First Name:</ion-label>
@@ -45,7 +45,7 @@
     <span *ngIf = "patient.controls.password.touched && patient.controls.password.errors">A valid password of length greater than 6 is required</span>
     <ion-item>
       <ion-label>Confirm Password:</ion-label>
-      <ion-input type="password"  formControlName="confirm" validateEqual="password"></ion-input>
+      <ion-input type="password" clearOnEdit="false" formControlName="confirm" validateEqual="password"></ion-input>
     </ion-item>
     <span *ngIf = "patient.controls.confirm.touched && patient.controls.confirm.errors && validateEqual">Password does not match</span>
     <span class = "confirmError" *ngIf = "patient.controls.confirm.touched && wrong">Password mismatch</span>
